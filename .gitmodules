@@ -1,0 +1,3 @@
+[submodule "tausch"]
+	path = tausch
+	url = https://github.com/luspi/tausch
