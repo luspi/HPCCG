@@ -64,6 +64,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 #include <cmath>
+#include <numeric>
 #include "mytimer.hpp"
 #include "tausch/tausch.h"
 #include "HPCCGT.hpp"
@@ -106,8 +107,9 @@ int HPCCG(HPC_Sparse_Matrix * A,
     tausch->addSendHaloInfo(std::vector<int>(&A->elements_to_send[sendOffset],
                                              &A->elements_to_send[sendOffset+A->send_length[i]]),
                             sizeof(double));
-    const std::vector<std::array<int, 4> > remote = {{recvOffset, recvOffset+A->recv_length[i], 1, 0}};
-    tausch->addRecvHaloInfo(remote, sizeof(double));
+    std::vector<int> recvindices;
+    std::iota(std::begin(recvindices), std::end(recvindices), 0);
+    tausch->addRecvHaloInfo(recvindices, sizeof(double));
     sendOffset += A->send_length[i];
     recvOffset += A->recv_length[i];
   }
@@ -172,7 +174,7 @@ int HPCCG(HPC_Sparse_Matrix * A,
   delete tausch;
 #endif
   delete [] p;
-//   delete [] Ap;
+  delete [] Ap;
   delete [] r;
   times[0] = mytimer() - t_begin;  // Total time. All done...
   return(0);
